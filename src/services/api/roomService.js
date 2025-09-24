@@ -322,6 +322,79 @@ async updateStatus(id, status) {
         seasonalAdjustment: room.seasonal_adjustment_c || room.pricing?.seasonalAdjustment || 0
       }
     };
+}
+
+  // Booking-related methods
+  async getAvailableRooms(checkIn, checkOut) {
+    try {
+      if (!this.apperClient) this.initializeClient();
+      
+      // First get all rooms
+      const allRooms = await this.getAll();
+      
+      // For mock implementation, assume all rooms are available
+      // In real implementation, this would cross-reference with booking data
+      return allRooms.filter(room => room.status === 'Available');
+    } catch (error) {
+      console.error("Error fetching available rooms:", error);
+      return [];
+    }
+  }
+  async checkRoomAvailability(roomId, checkIn, checkOut, excludeBookingId = null) {
+    try {
+      // Mock implementation - in real scenario would check against booking records
+      const room = await this.getById(roomId);
+      if (!room) {
+        return { available: false, reason: "Room not found" };
+      }
+      
+      if (room.status !== 'Available') {
+        return { available: false, reason: "Room not available" };
+      }
+      
+      return { available: true };
+    } catch (error) {
+      console.error("Error checking room availability:", error);
+      return { available: false, reason: "Error checking availability" };
+    }
+  }
+
+  async getRoomOccupancy() {
+    try {
+      const rooms = await this.getAll();
+      const totalRooms = rooms.length;
+      const occupiedRooms = rooms.filter(room => 
+        room.status === 'Occupied' || 
+        (room.currentOccupants > 0)
+      ).length;
+      
+      return {
+        total: totalRooms,
+        occupied: occupiedRooms,
+        available: totalRooms - occupiedRooms,
+        occupancyRate: totalRooms > 0 ? (occupiedRooms / totalRooms * 100).toFixed(1) : 0
+      };
+    } catch (error) {
+      console.error("Error calculating room occupancy:", error);
+      return {
+        total: 0,
+        occupied: 0,
+        available: 0,
+        occupancyRate: 0
+      };
+    }
+  }
+
+  async updateOccupancy(roomId, occupantCount) {
+    try {
+      return await this.update(roomId, {
+        current_occupants_c: parseInt(occupantCount) || 0,
+        status_c: occupantCount > 0 ? 'Occupied' : 'Available'
+      });
+    } catch (error) {
+      console.error("Error updating room occupancy:", error);
+      throw error;
+    }
   }
 
 }

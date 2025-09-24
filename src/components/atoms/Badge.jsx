@@ -13,7 +13,11 @@ const Badge = forwardRef(({ className, variant = "default", size = "md", childre
     available: "bg-success/10 text-success border border-success/20",
     occupied: "bg-error/10 text-error border border-error/20",
     maintenance: "bg-warning/10 text-warning border border-warning/20",
-    reserved: "bg-info/10 text-info border border-info/20"
+    reserved: "bg-info/10 text-info border border-info/20",
+    confirmed: "bg-success/10 text-success border border-success/20",
+    pending: "bg-warning/10 text-warning border border-warning/20",
+    inquiry: "bg-info/10 text-info border border-info/20",
+    cancelled: "bg-error/10 text-error border border-error/20"
   };
 
   const sizes = {

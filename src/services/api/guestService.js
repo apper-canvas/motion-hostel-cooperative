@@ -271,6 +271,129 @@ Id: parseInt(id),
     } catch (error) {
       console.error("Error updating guest status:", error?.response?.data?.message || error);
       throw error;
+}
+  }
+
+  // Booking-related methods
+  async getByDateRange(startDate, endDate) {
+    try {
+      if (!this.apperClient) this.initializeClient();
+      
+      const start = startDate instanceof Date ? startDate.toISOString().split('T')[0] : startDate;
+      const end = endDate instanceof Date ? endDate.toISOString().split('T')[0] : endDate;
+      
+      const params = {
+        fields: [
+          {"field": {"Name": "Name"}},
+          {"field": {"Name": "name_c"}},
+          {"field": {"Name": "email_c"}},
+          {"field": {"Name": "check_in_c"}},
+          {"field": {"Name": "check_out_c"}},
+          {"field": {"Name": "room_id_c"}},
+          {"field": {"Name": "status_c"}},
+          {"field": {"Name": "nationality_c"}},
+          {"field": {"Name": "phone_c"}},
+          {"field": {"Name": "id_document_c"}},
+          {"field": {"Name": "Tags"}}
+        ],
+        where: [
+          {"FieldName": "check_in_c", "Operator": "LessThanOrEqualTo", "Values": [end]},
+          {"FieldName": "check_out_c", "Operator": "GreaterThanOrEqualTo", "Values": [start]}
+        ]
+      };
+      
+      const response = await this.apperClient.fetchRecords(this.tableName, params);
+      
+      if (!response?.data?.length) {
+        return [];
+      } else {
+        return response.data;
+      }
+    } catch (error) {
+      console.error("Error fetching guests by date range:", error?.response?.data?.message || error);
+      return [];
+    }
+  }
+
+  async getActiveBookings() {
+    try {
+      if (!this.apperClient) this.initializeClient();
+      
+      const today = new Date().toISOString().split('T')[0];
+      
+      const params = {
+        fields: [
+          {"field": {"Name": "Name"}},
+          {"field": {"Name": "name_c"}},
+          {"field": {"Name": "email_c"}},
+          {"field": {"Name": "check_in_c"}},
+          {"field": {"Name": "check_out_c"}},
+          {"field": {"Name": "room_id_c"}},
+          {"field": {"Name": "status_c"}},
+          {"field": {"Name": "nationality_c"}},
+          {"field": {"Name": "phone_c"}},
+          {"field": {"Name": "id_document_c"}},
+          {"field": {"Name": "Tags"}}
+        ],
+        where: [
+          {"FieldName": "check_in_c", "Operator": "LessThanOrEqualTo", "Values": [today]},
+          {"FieldName": "check_out_c", "Operator": "GreaterThan", "Values": [today]},
+          {"FieldName": "status_c", "Operator": "ExactMatch", "Values": ["checked-in", "confirmed"]}
+        ]
+      };
+      
+      const response = await this.apperClient.fetchRecords(this.tableName, params);
+      
+      if (!response?.data?.length) {
+        return [];
+      } else {
+        return response.data;
+      }
+    } catch (error) {
+      console.error("Error fetching active bookings:", error?.response?.data?.message || error);
+      return [];
+    }
+  }
+
+  async getUpcomingCheckIns(days = 7) {
+    try {
+      if (!this.apperClient) this.initializeClient();
+      
+      const today = new Date();
+      const futureDate = new Date(today.getTime() + (days * 24 * 60 * 60 * 1000));
+      
+      const params = {
+        fields: [
+          {"field": {"Name": "Name"}},
+          {"field": {"Name": "name_c"}},
+          {"field": {"Name": "email_c"}},
+          {"field": {"Name": "check_in_c"}},
+          {"field": {"Name": "check_out_c"}},
+          {"field": {"Name": "room_id_c"}},
+          {"field": {"Name": "status_c"}},
+          {"field": {"Name": "nationality_c"}},
+          {"field": {"Name": "phone_c"}},
+          {"field": {"Name": "id_document_c"}},
+          {"field": {"Name": "Tags"}}
+        ],
+        where: [
+          {"FieldName": "check_in_c", "Operator": "GreaterThanOrEqualTo", "Values": [today.toISOString().split('T')[0]]},
+          {"FieldName": "check_in_c", "Operator": "LessThanOrEqualTo", "Values": [futureDate.toISOString().split('T')[0]]},
+          {"FieldName": "status_c", "Operator": "ExactMatch", "Values": ["confirmed", "reserved"]}
+        ],
+        orderBy: [{"fieldName": "check_in_c", "sorttype": "ASC"}]
+      };
+      
+      const response = await this.apperClient.fetchRecords(this.tableName, params);
+      
+      if (!response?.data?.length) {
+        return [];
+      } else {
+        return response.data;
+      }
+    } catch (error) {
+      console.error("Error fetching upcoming check-ins:", error?.response?.data?.message || error);
+      return [];
     }
   }
 }
