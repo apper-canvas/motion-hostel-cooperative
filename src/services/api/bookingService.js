@@ -190,12 +190,37 @@ class BookingService {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
-  async getAll() {
+async getAll() {
     await this.delay();
     try {
       return [...this.mockData].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     } catch (error) {
       console.error("Error fetching bookings:", error);
+      return [];
+    }
+  }
+
+  // Get bookings filtered by criteria
+  async getFiltered(filters = {}) {
+    await this.delay();
+    try {
+      let filteredBookings = [...this.mockData];
+      
+      if (filters.status && filters.status !== 'All') {
+        filteredBookings = filteredBookings.filter(b => b.status === filters.status);
+      }
+      
+      if (filters.roomId) {
+        filteredBookings = filteredBookings.filter(b => b.roomId === filters.roomId);
+      }
+      
+      if (filters.guestId) {
+        filteredBookings = filteredBookings.filter(b => b.guestId === filters.guestId);
+      }
+      
+      return filteredBookings.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    } catch (error) {
+      console.error("Error fetching filtered bookings:", error);
       return [];
     }
   }

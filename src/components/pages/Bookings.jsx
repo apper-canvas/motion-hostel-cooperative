@@ -1,18 +1,20 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Card, CardContent, CardHeader } from "@/components/atoms/Card";
+import { toast } from "react-toastify";
+import guestService from "@/services/api/guestService";
+import bookingService from "@/services/api/bookingService";
+import roomService from "@/services/api/roomService";
+import ApperIcon from "@/components/ApperIcon";
+import Loading from "@/components/ui/Loading";
 import Button from "@/components/atoms/Button";
 import Badge from "@/components/atoms/Badge";
-import ApperIcon from "@/components/ApperIcon";
-import { toast } from "react-toastify";
-import bookingService from "@/services/api/bookingService";
-import guestService from "@/services/api/guestService";
-import roomService from "@/services/api/roomService";
 
 const Bookings = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [bookings, setBookings] = useState([]);
   const [guests, setGuests] = useState([]);
   const [rooms, setRooms] = useState([]);
+  const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedBooking, setSelectedBooking] = useState(null);
@@ -20,7 +22,12 @@ const Bookings = () => {
   const [selectedDateRange, setSelectedDateRange] = useState(null);
   const [draggedBooking, setDraggedBooking] = useState(null);
   const [hoveredDate, setHoveredDate] = useState(null);
-
+  const [viewMode, setViewMode] = useState('month'); // 'month' or 'week'
+  const [roomTypeFilter, setRoomTypeFilter] = useState('All');
+  const [bookingSourceFilter, setBookingSourceFilter] = useState('All');
+  const [statusFilter, setStatusFilter] = useState('All');
+  const [tooltipData, setTooltipData] = useState(null);
+  const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
   // Load initial data
   useEffect(() => {
     loadData();
@@ -48,15 +55,37 @@ const Bookings = () => {
     }
   };
 
-  // Calendar navigation
+// Calendar navigation
   const navigateMonth = (direction) => {
     const newDate = new Date(currentDate);
-    newDate.setMonth(currentDate.getMonth() + direction);
+    if (viewMode === 'week') {
+      newDate.setDate(currentDate.getDate() + (direction * 7));
+    } else {
+      newDate.setMonth(currentDate.getMonth() + direction);
+    }
     setCurrentDate(newDate);
   };
 
+  // Get current week (Sunday to Saturday)
+  const getCurrentWeek = () => {
+    const startOfWeek = new Date(currentDate);
+    startOfWeek.setDate(currentDate.getDate() - currentDate.getDay());
+    
+    const week = [];
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(startOfWeek);
+      date.setDate(startOfWeek.getDate() + i);
+      week.push(date);
+    }
+    return week;
+  };
+
   // Get calendar days for current month
-  const getCalendarDays = () => {
+const getCalendarDays = () => {
+    if (viewMode === 'week') {
+      return getCurrentWeek();
+    }
+    
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
     const firstDay = new Date(year, month, 1);
@@ -82,15 +111,54 @@ const Bookings = () => {
   };
 
   // Get bookings for a specific date
-  const getBookingsForDate = (date) => {
+const getBookingsForDate = (date) => {
     const dateStr = date.toISOString().split('T')[0];
     return bookings.filter(booking => {
       const checkIn = new Date(booking.checkIn).toISOString().split('T')[0];
       const checkOut = new Date(booking.checkOut).toISOString().split('T')[0];
-      return dateStr >= checkIn && dateStr < checkOut;
+      const dateInRange = dateStr >= checkIn && dateStr < checkOut;
+      
+      if (!dateInRange) return false;
+      
+      // Apply filters
+      const room = rooms.find(r => r.Id === booking.roomId);
+      const roomType = room?.type || 'Unknown';
+      
+      const roomTypeMatch = roomTypeFilter === 'All' || roomType === roomTypeFilter;
+      const statusMatch = statusFilter === 'All' || booking.status === statusFilter;
+      
+      // Simulate booking source based on booking patterns
+      const bookingSource = booking.totalAmount > 100 ? 'Online' : 'Walk-in';
+      const sourceMatch = bookingSourceFilter === 'All' || bookingSource === bookingSourceFilter;
+      
+      return roomTypeMatch && statusMatch && sourceMatch;
     });
   };
 
+  // Get unique room types for filter options
+  const getRoomTypes = () => {
+    const types = [...new Set(rooms.map(room => room.type).filter(Boolean))];
+    return types.length > 0 ? types : ['4-Bed Dorm', '6-Bed Dorm', '8-Bed Dorm', 'Private Room'];
+  };
+
+  // Handle booking hover for tooltip
+  const handleBookingHover = (e, booking) => {
+    const guest = guests.find(g => g.Id === booking.guestId);
+    const room = rooms.find(r => r.Id === booking.roomId);
+    const guestPayments = payments.filter(p => p.guest_id_c?.Id === booking.guestId);
+    
+    setTooltipData({
+      booking,
+      guest,
+      room,
+      payments: guestPayments
+    });
+    setTooltipPosition({ x: e.clientX, y: e.clientY });
+  };
+
+const handleBookingLeave = () => {
+    setTooltipData(null);
+  };
   // Handle date click for quick booking
   const handleDateClick = (date) => {
     const dateBookings = getBookingsForDate(date);
@@ -237,8 +305,8 @@ const Bookings = () => {
         {/* Calendar - 70% width */}
         <div className="lg:col-span-8">
           <Card className="h-full">
-            <CardHeader className="pb-4">
-              <div className="flex items-center justify-between">
+<CardHeader className="pb-4">
+              <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-4">
                   <Button
                     variant="outline"
@@ -249,7 +317,10 @@ const Bookings = () => {
                   </Button>
                   
                   <h2 className="text-xl font-semibold">
-                    {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
+                    {viewMode === 'week' 
+                      ? `Week of ${currentDate.toLocaleDateString()}`
+                      : `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`
+                    }
                   </h2>
                   
                   <Button
@@ -261,13 +332,87 @@ const Bookings = () => {
                   </Button>
                 </div>
 
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentDate(new Date())}
+                <div className="flex items-center space-x-2">
+                  <div className="flex items-center bg-gray-100 rounded-lg p-1">
+                    <Button
+                      variant={viewMode === 'month' ? 'primary' : 'ghost'}
+                      size="sm"
+                      onClick={() => setViewMode('month')}
+                    >
+                      Month
+                    </Button>
+                    <Button
+                      variant={viewMode === 'week' ? 'primary' : 'ghost'}
+                      size="sm"
+                      onClick={() => setViewMode('week')}
+                    >
+                      Week
+                    </Button>
+                  </div>
+                  
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentDate(new Date())}
+                  >
+                    Today
+                  </Button>
+                </div>
+              </div>
+
+              {/* Filter Panel */}
+              <div className="flex items-center space-x-4 pb-4 border-b border-gray-200">
+                <div className="flex items-center space-x-2">
+                  <ApperIcon name="Filter" size={16} className="text-gray-500" />
+                  <span className="text-sm font-medium text-gray-700">Filters:</span>
+                </div>
+                
+                <select
+                  value={roomTypeFilter}
+                  onChange={(e) => setRoomTypeFilter(e.target.value)}
+                  className="px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                 >
-                  Today
-                </Button>
+                  <option value="All">All Room Types</option>
+                  {getRoomTypes().map(type => (
+                    <option key={type} value={type}>{type}</option>
+                  ))}
+                </select>
+
+                <select
+                  value={bookingSourceFilter}
+                  onChange={(e) => setBookingSourceFilter(e.target.value)}
+                  className="px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                >
+                  <option value="All">All Sources</option>
+                  <option value="Online">Online</option>
+                  <option value="Walk-in">Walk-in</option>
+                </select>
+
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                >
+                  <option value="All">All Status</option>
+                  <option value="inquiry">Inquiry</option>
+                  <option value="confirmed">Confirmed</option>
+                  <option value="pending">Pending</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+
+                {(roomTypeFilter !== 'All' || bookingSourceFilter !== 'All' || statusFilter !== 'All') && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setRoomTypeFilter('All');
+                      setBookingSourceFilter('All');
+                      setStatusFilter('All');
+                    }}
+                  >
+                    Clear Filters
+                  </Button>
+                )}
               </div>
 
               {/* Status Legend */}
@@ -315,15 +460,19 @@ const Bookings = () => {
                       </div>
                       
                       <div className="space-y-1">
-                        {dateBookings.slice(0, 3).map(booking => {
+{dateBookings.slice(0, 3).map(booking => {
                           const guest = guests.find(g => g.Id === booking.guestId);
                           const room = rooms.find(r => r.Id === booking.roomId);
+                          const guestPayments = payments.filter(p => p.guest_id_c?.Id === booking.guestId);
+                          const totalPaid = guestPayments.reduce((sum, p) => sum + (p.amount_c || 0), 0);
                           
                           return (
                             <div
                               key={booking.Id}
                               draggable
                               onDragStart={(e) => handleDragStart(e, booking)}
+                              onMouseEnter={(e) => handleBookingHover(e, booking)}
+                              onMouseLeave={handleBookingLeave}
                               className={`text-xs p-1 rounded cursor-move hover:shadow-md transition-shadow ${
                                 booking.status === 'confirmed' ? 'bg-green-100 text-green-800 border border-green-200' :
                                 booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800 border border-yellow-200' :
@@ -334,13 +483,15 @@ const Bookings = () => {
                                 setSelectedBooking(booking);
                                 setShowBookingModal(true);
                               }}
-                              title={`${guest?.name_c || 'Unknown Guest'} - Room ${room?.number_c || 'N/A'}`}
                             >
                               <div className="font-medium truncate">
                                 {guest?.name_c || 'Unknown Guest'}
                               </div>
                               <div className="text-xs opacity-75">
                                 Room {room?.number_c || 'N/A'}
+                              </div>
+                              <div className="text-xs opacity-60">
+                                ${booking.totalAmount} • {booking.status}
                               </div>
                             </div>
                           );
@@ -465,6 +616,57 @@ const Bookings = () => {
             setSelectedDateRange(null);
           }}
         />
+)}
+
+      {/* Rich Tooltip */}
+      {tooltipData && (
+        <div
+          className="fixed z-50 bg-white border border-gray-200 rounded-lg shadow-lg p-4 max-w-sm pointer-events-none"
+          style={{
+            left: tooltipPosition.x + 10,
+            top: tooltipPosition.y - 10,
+            transform: 'translateY(-100%)'
+          }}
+        >
+          <div className="space-y-2">
+            <div className="font-semibold text-gray-900">
+              {tooltipData.guest?.name_c || 'Unknown Guest'}
+            </div>
+            
+            <div className="text-sm text-gray-600 space-y-1">
+              <div className="flex items-center">
+                <ApperIcon name="MapPin" size={14} className="mr-2" />
+                Room {tooltipData.room?.number_c || 'N/A'} ({tooltipData.room?.type || 'Unknown Type'})
+              </div>
+              
+              <div className="flex items-center">
+                <ApperIcon name="Calendar" size={14} className="mr-2" />
+                {new Date(tooltipData.booking.checkIn).toLocaleDateString()} - {new Date(tooltipData.booking.checkOut).toLocaleDateString()}
+              </div>
+              
+              <div className="flex items-center">
+                <ApperIcon name="DollarSign" size={14} className="mr-2" />
+                Total: ${tooltipData.booking.totalAmount}
+              </div>
+              
+              <div className="flex items-center">
+                <ApperIcon name="CreditCard" size={14} className="mr-2" />
+                Paid: ${tooltipData.payments.reduce((sum, p) => sum + (p.amount_c || 0), 0)}
+              </div>
+              
+              <div className="flex items-center">
+                <ApperIcon name="Info" size={14} className="mr-2" />
+                Status: <span className="capitalize ml-1">{tooltipData.booking.status}</span>
+              </div>
+            </div>
+            
+            {tooltipData.booking.notes && (
+              <div className="text-xs text-gray-500 pt-2 border-t border-gray-200">
+                {tooltipData.booking.notes}
+              </div>
+            )}
+          </div>
+        </div>
       )}
     </div>
   );
