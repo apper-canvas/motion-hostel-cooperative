@@ -555,9 +555,9 @@ const Rooms = () => {
     setEditingRoom(null);
   };
 
-  const filteredRooms = rooms.filter((room) => {
-    const matchesSearch = room.number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         room.type.toLowerCase().includes(searchTerm.toLowerCase());
+const filteredRooms = rooms.filter((room) => {
+    const matchesSearch = (room.number || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (room.type || "").toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === "All" || room.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
