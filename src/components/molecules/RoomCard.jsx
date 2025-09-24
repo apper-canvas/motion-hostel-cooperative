@@ -1,8 +1,8 @@
 import React from "react";
 import { Card, CardContent } from "@/components/atoms/Card";
-import Badge from "@/components/atoms/Badge";
-import ApperIcon from "@/components/ApperIcon";
 import { cn } from "@/utils/cn";
+import ApperIcon from "@/components/ApperIcon";
+import Badge from "@/components/atoms/Badge";
 
 const RoomCard = ({ room, onClick }) => {
   const getStatusVariant = (status) => {
@@ -32,48 +32,45 @@ const RoomCard = ({ room, onClick }) => {
       "Maintenance": "border-l-4 border-l-warning",
       "Reserved": "border-l-4 border-l-info"
     };
-    return borders[status] || "";
+return borders[status] || "";
   };
 
-  const amenitiesArray = typeof room.amenities_c === 'string' 
-    ? room.amenities_c.split(',').map(a => a.trim()).filter(Boolean)
-    : room.amenities || [];
-
+  // Amenities are now consistently provided as arrays from service
+  const amenitiesArray = room.amenities || [];
+  
   return (
     <Card 
       className={cn(
-        "cursor-pointer transition-all duration-200 hover:shadow-md hover:-translate-y-1",
-        getStatusBorder(room.status_c || room.status)
+        "p-4 cursor-pointer transition-colors hover:bg-gray-50 border border-gray-200 rounded-lg",
+        getStatusBorder(room.status)
       )}
       onClick={() => onClick?.(room)}
     >
       <CardContent className="p-4">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center space-x-2">
-            <h3 className="font-semibold text-gray-900">Room {room.number_c || room.number}</h3>
-            <ApperIcon name={getStatusIcon(room.status_c || room.status)} size={16} className="text-gray-500" />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <h3 className="font-semibold text-gray-900">Room {room.number}</h3>
+            <ApperIcon name={getStatusIcon(room.status)} size={16} className="text-gray-500" />
           </div>
-          <Badge variant={getStatusVariant(room.status_c || room.status)} size="sm">
-            {room.status_c || room.status}
+          <Badge variant={getStatusVariant(room.status)} size="sm">
+            {room.status}
           </Badge>
         </div>
         
         <div className="space-y-2 mb-4">
-          <div className="flex items-center text-sm text-gray-600">
+          <div className="flex items-center text-sm text-gray-600 mt-2">
             <ApperIcon name="BedDouble" size={14} className="mr-2" />
-            {room.type_c || room.type}
+            {room.type}
           </div>
-          <div className="flex items-center text-sm text-gray-600">
+          <div className="flex items-center text-sm text-gray-600 mt-1">
             <ApperIcon name="Users" size={14} className="mr-2" />
-            {room.current_occupants_c || room.currentOccupants || 0}/{room.max_occupancy_c || room.maxOccupancy} occupants
+            {room.currentOccupants || 0}/{room.maxOccupancy} occupants
           </div>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <span className="text-sm font-medium text-gray-900">
-            {room.bed_count_c || room.bedCount} beds
-          </span>
-          <div className="flex items-center space-x-1">
+          <div className="flex items-center text-sm text-gray-600 mt-1">
+            <ApperIcon name="Bed" size={14} className="mr-2" />
+            {room.bedCount} beds
+          </div>
+          <div className="flex items-center gap-1 mt-2">
             {amenitiesArray?.slice(0, 3).map((amenity, index) => (
               <div key={index} className="w-2 h-2 bg-gray-300 rounded-full"></div>
             ))}
@@ -82,8 +79,8 @@ const RoomCard = ({ room, onClick }) => {
             )}
           </div>
         </div>
-
-        {(room.status_c || room.status) === "Available" && (
+        
+        {room.status === "Available" && (
           <div className="mt-3 pt-3 border-t border-gray-100">
             <div className="flex items-center text-xs text-success">
               <ApperIcon name="Clock" size={12} className="mr-1" />

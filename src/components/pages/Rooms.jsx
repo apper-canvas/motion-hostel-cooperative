@@ -1,13 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader } from "@/components/atoms/Card";
-import Button from "@/components/atoms/Button";
-import Badge from "@/components/atoms/Badge";
-import ApperIcon from "@/components/ApperIcon";
-import { cn } from "@/utils/cn";
+import { toast } from "react-toastify";
 import roomService from "@/services/api/roomService";
+import { cn } from "@/utils/cn";
+import ApperIcon from "@/components/ApperIcon";
 import Loading from "@/components/ui/Loading";
 import Error from "@/components/ui/Error";
-import { toast } from "react-toastify";
+import Button from "@/components/atoms/Button";
+import Badge from "@/components/atoms/Badge";
+import Maintenance from "@/components/pages/Maintenance";
 
 const Input = ({ className, ...props }) => (
   <input
@@ -63,7 +64,7 @@ const RoomListItem = ({ room, isSelected, onClick }) => {
   };
 
   return (
-    <Card
+<Card
       className={cn(
         "cursor-pointer transition-all duration-200 hover:shadow-md",
         isSelected && "ring-2 ring-primary border-primary"
@@ -97,12 +98,12 @@ const RoomListItem = ({ room, isSelected, onClick }) => {
 };
 
 const RoomForm = ({ room, onSave, onCancel, isEditing }) => {
-  const [formData, setFormData] = useState({
+const [formData, setFormData] = useState({
     number: room?.number || "",
     type: room?.type || "4-Bed Dorm",
     bedCount: room?.bedCount || 4,
     maxOccupancy: room?.maxOccupancy || 4,
-    amenities: room?.amenities?.join(", ") || "WiFi, AC, Locker, Bathroom",
+    amenities: Array.isArray(room?.amenities) ? room.amenities.join(", ") : (room?.amenities || "WiFi, AC, Locker, Bathroom"),
     bathroomType: room?.bathroomType || "Shared",
     windowView: room?.windowView || "Interior",
     baseRatePerBed: room?.pricing?.baseRatePerBed || 25,
@@ -165,10 +166,10 @@ const roomData = {
             value={formData.type}
             onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value }))}
             required
-          >
+>
             <option value="4-Bed Dorm">4-Bed Dorm</option>
             <option value="6-Bed Dorm">6-Bed Dorm</option>
-<option value="8-Bed Dorm">8-Bed Dorm</option>
+            <option value="8-Bed Dorm">8-Bed Dorm</option>
             <option value="Private Room">Private Room</option>
           </Select>
         </div>
@@ -306,18 +307,7 @@ const roomData = {
           onChange={(e) => setFormData(prev => ({ ...prev, amenities: e.target.value }))}
           placeholder="WiFi, AC, Locker, Bathroom, TV"
         />
-      </div>
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Amenities (comma separated)
-        </label>
-        <Textarea
-          rows={3}
-          value={formData.amenities}
-          onChange={(e) => setFormData(prev => ({ ...prev, amenities: e.target.value }))}
-          placeholder="WiFi, AC, Locker, Bathroom, TV"
-        />
-      </div>
+</div>
 
       <div className="flex space-x-3 pt-4 border-t border-gray-200">
         <Button type="submit" loading={loading} className="flex-1">
@@ -358,11 +348,11 @@ const RoomDetails = ({ room, onEdit, onStatusChange }) => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+<div className="space-y-6">
+      <div className="flex items-center justify-between mb-4">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Room {room.number}</h2>
-<p className="text-gray-600">{room.type} • {room.bathroomType} Bathroom • {room.windowView}</p>
+          <p className="text-gray-600">{room.type} • {room.bathroomType} Bathroom • {room.windowView}</p>
         </div>
         <div className="text-right">
           <Badge variant={getStatusVariant(room.status)} size="lg">
@@ -413,7 +403,7 @@ const RoomDetails = ({ room, onEdit, onStatusChange }) => {
         </Card>
 
         <Card>
-          <CardContent className="p-4">
+<CardContent className="p-4">
             <h3 className="font-semibold text-gray-900 mb-3">Amenities</h3>
             <div className="flex flex-wrap gap-2">
               {room.amenities?.map((amenity, index) => (
@@ -423,8 +413,10 @@ const RoomDetails = ({ room, onEdit, onStatusChange }) => {
               ))}
             </div>
           </CardContent>
-</Card>
+        </Card>
+      </div>
 
+      <div className="grid grid-cols-1 gap-6">
         <Card>
           <CardContent className="p-4">
             <h3 className="font-semibold text-gray-900 mb-3">Room Features</h3>
@@ -550,18 +542,18 @@ const Rooms = () => {
     setSelectedRoom(savedRoom);
   };
 
-  const handleFormCancel = () => {
+const handleFormCancel = () => {
     setShowForm(false);
     setEditingRoom(null);
   };
 
-const filteredRooms = rooms.filter((room) => {
+  // Filter rooms based on search and status
+  const filteredRooms = rooms.filter((room) => {
     const matchesSearch = (room.number || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
                          (room.type || "").toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === "All" || room.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
-
   if (loading) return <Loading />;
   if (error) return <Error message={error} onRetry={loadRooms} />;
 

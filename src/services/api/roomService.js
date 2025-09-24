@@ -15,7 +15,7 @@ class RoomService {
     }
   }
 
-  async getAll() {
+async getAll() {
     try {
       if (!this.apperClient) this.initializeClient();
       
@@ -40,18 +40,18 @@ class RoomService {
       
       const response = await this.apperClient.fetchRecords(this.tableName, params);
       
-      if (!response?.data?.length) {
-        return [];
-      } else {
-        return response.data;
+      if (response?.data?.length > 0) {
+        return response.data.map(room => this.transformRoomData(room));
       }
+      
+      return [];
     } catch (error) {
-      console.error("Error fetching rooms:", error?.response?.data?.message || error);
+      console.error("Error fetching rooms:", error);
       return [];
     }
   }
 
-  async getById(id) {
+async getById(id) {
     try {
       if (!this.apperClient) this.initializeClient();
       
@@ -76,14 +76,14 @@ class RoomService {
       
       const response = await this.apperClient.getRecordById(this.tableName, id, params);
       
-      if (!response?.data) {
-        throw new Error("Room not found");
-      } else {
-        return response.data;
+      if (response?.data) {
+        return this.transformRoomData(response.data);
       }
+      
+      return null;
     } catch (error) {
-      console.error(`Error fetching room ${id}:`, error?.response?.data?.message || error);
-      throw new Error("Room not found");
+      console.error("Error fetching room by ID:", error);
+      return null;
     }
   }
 
@@ -218,7 +218,7 @@ class RoomService {
     }
   }
 
-  async getByStatus(status) {
+async getByStatus(status) {
     try {
       if (!this.apperClient) this.initializeClient();
       
@@ -244,19 +244,21 @@ class RoomService {
       
       const response = await this.apperClient.fetchRecords(this.tableName, params);
       
-      if (!response?.data?.length) {
-        return [];
-      } else {
-        return response.data;
+      if (response?.data?.length > 0) {
+        return response.data.map(room => this.transformRoomData(room));
       }
+      
+      return [];
     } catch (error) {
-      console.error("Error fetching rooms by status:", error?.response?.data?.message || error);
+      console.error("Error fetching rooms by status:", error);
       return [];
     }
   }
 
-  async updateStatus(id, status) {
+async updateStatus(id, status) {
     try {
+      if (!this.apperClient) this.initializeClient();
+      
       const params = {
         records: [{
           Id: parseInt(id),
@@ -276,11 +278,49 @@ class RoomService {
         const successful = response.results.filter(r => r.success);
         return successful[0]?.data;
       }
+      
+      return null;
     } catch (error) {
       console.error("Error updating room status:", error?.response?.data?.message || error);
       throw error;
     }
   }
-}
 
-export default new RoomService();
+  // Transform database fields (_c suffix) to UI-expected camelCase properties
+
+  // Transform database fields (_c suffix) to UI-expected camelCase properties
+  transformRoomData(room) {
+    if (!room) return null;
+    
+    return {
+      ...room,
+      // Core room properties
+      number: room.number_c || room.number || "",
+      type: room.type_c || room.type || "",
+      status: room.status_c || room.status || "",
+      bedCount: room.bed_count_c || room.bedCount || 0,
+      currentOccupants: room.current_occupants_c || room.currentOccupants || 0,
+      maxOccupancy: room.max_occupancy_c || room.maxOccupancy || 0,
+      
+      // Amenities handling (convert string to array if needed)
+      amenities: room.amenities_c ? 
+        (typeof room.amenities_c === 'string' ? 
+          room.amenities_c.split(',').map(a => a.trim()).filter(Boolean) : 
+          room.amenities_c
+        ) : 
+        (room.amenities || []),
+      
+      // Room details  
+      bathroomType: room.bathroom_type_c || room.bathroomType || "",
+      windowView: room.window_view_c || room.windowView || "",
+      lastUpdated: room.last_updated_c || room.lastUpdated || new Date().toISOString(),
+      
+      // Pricing object structure
+      pricing: {
+        baseRatePerBed: room.base_rate_per_bed_c || room.pricing?.baseRatePerBed || 0,
+        privateRoomRate: room.private_room_rate_c || room.pricing?.privateRoomRate || 0,
+        seasonalAdjustment: room.seasonal_adjustment_c || room.pricing?.seasonalAdjustment || 0
+      }
+    };
+  }
+}
