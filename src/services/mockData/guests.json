@@ -1,0 +1,57 @@
+[
+  {
+    "Id": 1,
+    "name": "John Smith",
+    "email": "john.smith@email.com",
+    "checkIn": "2024-01-14",
+    "checkOut": "2024-01-18",
+    "roomId": "2",
+    "status": "checked-in",
+    "nationality": "USA",
+    "phone": "+1-555-0123"
+  },
+  {
+    "Id": 2,
+    "name": "Maria Garcia",
+    "email": "maria.garcia@email.com",
+    "checkIn": "2024-01-13",
+    "checkOut": "2024-01-16",
+    "roomId": "3",
+    "status": "checked-in",
+    "nationality": "Spain",
+    "phone": "+34-600-123456"
+  },
+  {
+    "Id": 3,
+    "name": "David Wilson",
+    "email": "david.wilson@email.com",
+    "checkIn": "2024-01-15",
+    "checkOut": "2024-01-20",
+    "roomId": "7",
+    "status": "checked-in",
+    "nationality": "UK",
+    "phone": "+44-7700-123456"
+  },
+  {
+    "Id": 4,
+    "name": "Emma Johnson",
+    "email": "emma.johnson@email.com",
+    "checkIn": "2024-01-16",
+    "checkOut": "2024-01-19",
+    "roomId": "4",
+    "status": "reserved",
+    "nationality": "Canada",
+    "phone": "+1-416-555-0123"
+  },
+  {
+    "Id": 5,
+    "name": "Chen Wei",
+    "email": "chen.wei@email.com",
+    "checkIn": "2024-01-15",
+    "checkOut": "2024-01-22",
+    "roomId": "9",
+    "status": "checked-in",
+    "nationality": "China",
+    "phone": "+86-138-0013-8000"
+  }
+]

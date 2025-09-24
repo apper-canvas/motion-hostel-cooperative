@@ -1,0 +1,10 @@
+{
+  "totalRooms": 12,
+  "occupiedRooms": 5,
+  "availableBeds": 28,
+  "occupancyRate": 42,
+  "checkInsToday": 8,
+  "checkOutsToday": 5,
+  "maintenanceRooms": 1,
+  "lastUpdated": "2024-01-15T11:30:00Z"
+}

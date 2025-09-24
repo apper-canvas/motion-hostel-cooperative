@@ -1,0 +1,134 @@
+[
+  {
+    "Id": 1,
+    "number": "101",
+    "type": "4-Bed Dorm",
+    "bedCount": 4,
+    "status": "Available",
+    "amenities": ["WiFi", "AC", "Locker", "Bathroom"],
+    "currentOccupants": 0,
+    "maxOccupancy": 4,
+    "lastUpdated": "2024-01-15T10:30:00Z"
+  },
+  {
+    "Id": 2,
+    "number": "102",
+    "type": "6-Bed Dorm",
+    "bedCount": 6,
+    "status": "Occupied",
+    "amenities": ["WiFi", "AC", "Locker", "Bathroom", "Balcony"],
+    "currentOccupants": 4,
+    "maxOccupancy": 6,
+    "lastUpdated": "2024-01-15T09:45:00Z"
+  },
+  {
+    "Id": 3,
+    "number": "103",
+    "type": "8-Bed Dorm",
+    "bedCount": 8,
+    "status": "Occupied",
+    "amenities": ["WiFi", "AC", "Locker", "Bathroom"],
+    "currentOccupants": 8,
+    "maxOccupancy": 8,
+    "lastUpdated": "2024-01-15T11:15:00Z"
+  },
+  {
+    "Id": 4,
+    "number": "201",
+    "type": "Private Room",
+    "bedCount": 2,
+    "status": "Reserved",
+    "amenities": ["WiFi", "AC", "Private Bathroom", "TV"],
+    "currentOccupants": 0,
+    "maxOccupancy": 2,
+    "lastUpdated": "2024-01-15T08:20:00Z"
+  },
+  {
+    "Id": 5,
+    "number": "202",
+    "type": "4-Bed Dorm",
+    "bedCount": 4,
+    "status": "Maintenance",
+    "amenities": ["WiFi", "AC", "Locker", "Bathroom"],
+    "currentOccupants": 0,
+    "maxOccupancy": 4,
+    "lastUpdated": "2024-01-15T07:30:00Z"
+  },
+  {
+    "Id": 6,
+    "number": "203",
+    "type": "6-Bed Dorm",
+    "bedCount": 6,
+    "status": "Available",
+    "amenities": ["WiFi", "AC", "Locker", "Bathroom", "Kitchen Access"],
+    "currentOccupants": 0,
+    "maxOccupancy": 6,
+    "lastUpdated": "2024-01-15T10:45:00Z"
+  },
+  {
+    "Id": 7,
+    "number": "204",
+    "type": "Private Room",
+    "bedCount": 1,
+    "status": "Occupied",
+    "amenities": ["WiFi", "AC", "Private Bathroom", "TV", "Desk"],
+    "currentOccupants": 1,
+    "maxOccupancy": 1,
+    "lastUpdated": "2024-01-15T09:30:00Z"
+  },
+  {
+    "Id": 8,
+    "number": "301",
+    "type": "8-Bed Dorm",
+    "bedCount": 8,
+    "status": "Available",
+    "amenities": ["WiFi", "AC", "Locker", "Bathroom", "Common Area"],
+    "currentOccupants": 0,
+    "maxOccupancy": 8,
+    "lastUpdated": "2024-01-15T10:00:00Z"
+  },
+  {
+    "Id": 9,
+    "number": "302",
+    "type": "4-Bed Dorm",
+    "bedCount": 4,
+    "status": "Occupied",
+    "amenities": ["WiFi", "AC", "Locker", "Bathroom"],
+    "currentOccupants": 3,
+    "maxOccupancy": 4,
+    "lastUpdated": "2024-01-15T11:00:00Z"
+  },
+  {
+    "Id": 10,
+    "number": "303",
+    "type": "6-Bed Dorm",
+    "bedCount": 6,
+    "status": "Reserved",
+    "amenities": ["WiFi", "AC", "Locker", "Bathroom", "Window View"],
+    "currentOccupants": 0,
+    "maxOccupancy": 6,
+    "lastUpdated": "2024-01-15T08:45:00Z"
+  },
+  {
+    "Id": 11,
+    "number": "304",
+    "type": "Private Room",
+    "bedCount": 2,
+    "status": "Available",
+    "amenities": ["WiFi", "AC", "Private Bathroom", "TV", "Mini Fridge"],
+    "currentOccupants": 0,
+    "maxOccupancy": 2,
+    "lastUpdated": "2024-01-15T10:15:00Z"
+  },
+  {
+    "Id": 12,
+    "number": "401",
+    "type": "8-Bed Dorm",
+    "bedCount": 8,
+    "status": "Occupied",
+    "amenities": ["WiFi", "AC", "Locker", "Bathroom", "City View"],
+    "currentOccupants": 6,
+    "maxOccupancy": 8,
+    "lastUpdated": "2024-01-15T09:15:00Z"
+  }
+]
