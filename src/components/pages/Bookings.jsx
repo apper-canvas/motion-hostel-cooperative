@@ -213,16 +213,47 @@ const handleBookingLeave = () => {
   };
 
   // Handle booking creation/update
-  const handleBookingSubmit = async (bookingData) => {
+const handleBookingSubmit = async (bookingData) => {
     try {
+      let result;
       if (selectedBooking) {
-        const updated = await bookingService.update(selectedBooking.Id, bookingData);
-        setBookings(prev => prev.map(b => b.Id === selectedBooking.Id ? updated : b));
+        result = await bookingService.update(selectedBooking.Id, bookingData);
+        setBookings(prev => prev.map(b => b.Id === selectedBooking.Id ? result : b));
         toast.success("Booking updated successfully");
       } else {
-        const created = await bookingService.create(bookingData);
-        setBookings(prev => [...prev, created]);
+        result = await bookingService.create(bookingData);
+        setBookings(prev => [...prev, result]);
         toast.success("Booking created successfully");
+      }
+
+      // Send confirmation email
+      try {
+        const guest = guests.find(g => g.Id === result.guestId);
+        const room = rooms.find(r => r.Id === result.roomId);
+        
+        if (guest && room) {
+          const { ApperClient } = window.ApperSDK;
+          const apperClient = new ApperClient({
+            apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+            apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+          });
+
+          await apperClient.functions.invoke(import.meta.env.VITE_SEND_BOOKING_CONFIRMATION, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              booking: result,
+              guest: guest,
+              room: room,
+              isUpdate: !!selectedBooking
+            })
+          });
+          
+          toast.success("Confirmation email sent successfully");
+        }
+      } catch (emailError) {
+        console.error("Email sending failed:", emailError);
+        toast.warning("Booking saved but confirmation email failed to send");
       }
       setShowBookingModal(false);
       setSelectedBooking(null);
@@ -602,7 +633,7 @@ const handleBookingLeave = () => {
         </div>
       </div>
 
-      {/* Booking Modal */}
+{/* Booking Modal */}
       {showBookingModal && (
         <BookingModal
           booking={selectedBooking}
@@ -616,7 +647,7 @@ const handleBookingLeave = () => {
             setSelectedDateRange(null);
           }}
         />
-)}
+      )}
 
       {/* Rich Tooltip */}
       {tooltipData && (
@@ -660,8 +691,9 @@ const handleBookingLeave = () => {
               </div>
             </div>
             
-            {tooltipData.booking.notes && (
+{tooltipData.booking.notes && (
               <div className="text-xs text-gray-500 pt-2 border-t border-gray-200">
+                <div className="font-medium mb-1">Special Requests:</div>
                 {tooltipData.booking.notes}
               </div>
             )}
@@ -681,7 +713,8 @@ const BookingModal = ({ booking, dateRange, guests, rooms, onSubmit, onClose }) 
     checkOut: booking?.checkOut || dateRange?.end?.toISOString().split('T')[0] || '',
     status: booking?.status || 'inquiry',
     totalAmount: booking?.totalAmount || 0,
-    notes: booking?.notes || ''
+    notes: booking?.notes || '',
+    specialRequests: booking?.specialRequests || booking?.notes || ''
   });
 
   const handleSubmit = (e) => {
@@ -806,19 +839,21 @@ const BookingModal = ({ booking, dateRange, guests, rooms, onSubmit, onClose }) 
                 className="w-full p-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary"
               />
             </div>
-
-            {/* Notes */}
+{/* Special Requests/Notes */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Notes
+                Special Requests/Notes
               </label>
               <textarea
                 value={formData.notes}
-                onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
-                rows={3}
+                onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value, specialRequests: e.target.value }))}
+                rows={4}
                 className="w-full p-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary"
-                placeholder="Additional booking notes..."
+                placeholder="Please enter any special requests, dietary requirements, accessibility needs, or additional notes for this booking..."
               />
+              <p className="text-xs text-gray-500 mt-1">
+                This information will be included in the confirmation email and visible to staff.
+              </p>
             </div>
 
             {/* Submit Buttons */}

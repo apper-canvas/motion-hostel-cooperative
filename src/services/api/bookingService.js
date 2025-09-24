@@ -248,9 +248,10 @@ async getAll() {
         roomId: parseInt(bookingData.roomId),
         checkIn: bookingData.checkIn,
         checkOut: bookingData.checkOut,
-        status: bookingData.status || "inquiry",
+status: bookingData.status || "inquiry",
         totalAmount: parseFloat(bookingData.totalAmount) || 0,
         notes: bookingData.notes || "",
+        specialRequests: bookingData.specialRequests || bookingData.notes || "",
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };
@@ -279,7 +280,8 @@ async getAll() {
         checkOut: bookingData.checkOut || this.mockData[index].checkOut,
         status: bookingData.status || this.mockData[index].status,
         totalAmount: parseFloat(bookingData.totalAmount) || this.mockData[index].totalAmount,
-        notes: bookingData.notes !== undefined ? bookingData.notes : this.mockData[index].notes,
+notes: bookingData.notes !== undefined ? bookingData.notes : this.mockData[index].notes,
+        specialRequests: bookingData.specialRequests !== undefined ? bookingData.specialRequests : this.mockData[index].specialRequests || this.mockData[index].notes,
         updatedAt: new Date().toISOString()
       };
 
