@@ -1,5 +1,3 @@
-import React from "react";
-import Error from "@/components/ui/Error";
 class RoomService {
   constructor() {
     this.tableName = 'room_c';
@@ -317,10 +315,6 @@ async updateStatus(id, status) {
       windowView: room.window_view_c || room.windowView || "",
       lastUpdated: room.last_updated_c || room.lastUpdated || new Date().toISOString(),
       
-      // Pricing object structure
-      pricing: {
-        baseRatePerBed: room.base_rate_per_bed_c || room.pricing?.baseRatePerBed || 0,
-        privateRoomRate: room.private_room_rate_c || room.pricing?.privateRoomRate || 0,
 // Pricing object structure
       pricing: {
         baseRatePerBed: room.base_rate_per_bed_c || room.pricing?.baseRatePerBed || 0,
@@ -329,6 +323,8 @@ async updateStatus(id, status) {
       }
     };
   }
+
+}
 
 // Create and export singleton instance
 const roomService = new RoomService();
