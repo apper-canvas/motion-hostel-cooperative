@@ -8,6 +8,7 @@ import Guests from "@/components/pages/Guests";
 import Bookings from "@/components/pages/Bookings";
 import Reports from "@/components/pages/Reports";
 import Settings from "@/components/pages/Settings";
+import Maintenance from "@/components/pages/Maintenance";
 
 function App() {
   return (
@@ -19,7 +20,8 @@ function App() {
             <Route path="rooms" element={<Rooms />} />
             <Route path="guests" element={<Guests />} />
             <Route path="bookings" element={<Bookings />} />
-            <Route path="reports" element={<Reports />} />
+<Route path="reports" element={<Reports />} />
+            <Route path="maintenance" element={<Maintenance />} />
             <Route path="settings" element={<Settings />} />
           </Route>
         </Routes>

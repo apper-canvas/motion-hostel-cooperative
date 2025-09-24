@@ -12,6 +12,7 @@ const Sidebar = ({ isOpen, onClose }) => {
     { path: "/guests", label: "Guests", icon: "Users" },
     { path: "/bookings", label: "Bookings", icon: "Calendar" },
     { path: "/reports", label: "Reports", icon: "BarChart3" },
+{ path: "/maintenance", label: "Maintenance", icon: "Wrench" },
     { path: "/settings", label: "Settings", icon: "Settings" }
   ];
 

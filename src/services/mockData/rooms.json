@@ -6,6 +6,13 @@
     "bedCount": 4,
     "status": "Available",
     "amenities": ["WiFi", "AC", "Locker", "Bathroom"],
+    "bathroomType": "Shared",
+    "windowView": "Garden",
+    "pricing": {
+      "baseRatePerBed": 28.00,
+      "privateRoomRate": 85.00,
+      "seasonalAdjustment": 0
+    },
     "currentOccupants": 0,
     "maxOccupancy": 4,
     "lastUpdated": "2024-01-15T10:30:00Z"
@@ -17,6 +24,13 @@
     "bedCount": 6,
     "status": "Occupied",
     "amenities": ["WiFi", "AC", "Locker", "Bathroom", "Balcony"],
+    "bathroomType": "Shared",
+    "windowView": "City",
+    "pricing": {
+      "baseRatePerBed": 25.00,
+      "privateRoomRate": 90.00,
+      "seasonalAdjustment": 15
+    },
     "currentOccupants": 4,
     "maxOccupancy": 6,
     "lastUpdated": "2024-01-15T09:45:00Z"
@@ -28,6 +42,13 @@
     "bedCount": 8,
     "status": "Occupied",
     "amenities": ["WiFi", "AC", "Locker", "Bathroom"],
+    "bathroomType": "Shared",
+    "windowView": "Interior",
+    "pricing": {
+      "baseRatePerBed": 22.00,
+      "privateRoomRate": 75.00,
+      "seasonalAdjustment": 0
+    },
     "currentOccupants": 8,
     "maxOccupancy": 8,
     "lastUpdated": "2024-01-15T11:15:00Z"
@@ -39,6 +60,13 @@
     "bedCount": 2,
     "status": "Reserved",
     "amenities": ["WiFi", "AC", "Private Bathroom", "TV"],
+    "bathroomType": "En-suite",
+    "windowView": "City",
+    "pricing": {
+      "baseRatePerBed": 45.00,
+      "privateRoomRate": 120.00,
+      "seasonalAdjustment": 25
+    },
     "currentOccupants": 0,
     "maxOccupancy": 2,
     "lastUpdated": "2024-01-15T08:20:00Z"
@@ -50,6 +78,13 @@
     "bedCount": 4,
     "status": "Maintenance",
     "amenities": ["WiFi", "AC", "Locker", "Bathroom"],
+    "bathroomType": "Shared",
+    "windowView": "Street",
+    "pricing": {
+      "baseRatePerBed": 26.00,
+      "privateRoomRate": 80.00,
+      "seasonalAdjustment": -10
+    },
     "currentOccupants": 0,
     "maxOccupancy": 4,
     "lastUpdated": "2024-01-15T07:30:00Z"
@@ -61,6 +96,13 @@
     "bedCount": 6,
     "status": "Available",
     "amenities": ["WiFi", "AC", "Locker", "Bathroom", "Kitchen Access"],
+    "bathroomType": "Shared",
+    "windowView": "Garden",
+    "pricing": {
+      "baseRatePerBed": 30.00,
+      "privateRoomRate": 95.00,
+      "seasonalAdjustment": 20
+    },
     "currentOccupants": 0,
     "maxOccupancy": 6,
     "lastUpdated": "2024-01-15T10:45:00Z"
@@ -72,6 +114,13 @@
     "bedCount": 1,
     "status": "Occupied",
     "amenities": ["WiFi", "AC", "Private Bathroom", "TV", "Desk"],
+    "bathroomType": "En-suite",
+    "windowView": "Garden",
+    "pricing": {
+      "baseRatePerBed": 50.00,
+      "privateRoomRate": 110.00,
+      "seasonalAdjustment": 15
+    },
     "currentOccupants": 1,
     "maxOccupancy": 1,
     "lastUpdated": "2024-01-15T09:30:00Z"
@@ -83,6 +132,13 @@
     "bedCount": 8,
     "status": "Available",
     "amenities": ["WiFi", "AC", "Locker", "Bathroom", "Common Area"],
+    "bathroomType": "Shared",
+    "windowView": "City",
+    "pricing": {
+      "baseRatePerBed": 20.00,
+      "privateRoomRate": 70.00,
+      "seasonalAdjustment": 0
+    },
     "currentOccupants": 0,
     "maxOccupancy": 8,
     "lastUpdated": "2024-01-15T10:00:00Z"
@@ -94,6 +150,13 @@
     "bedCount": 4,
     "status": "Occupied",
     "amenities": ["WiFi", "AC", "Locker", "Bathroom"],
+    "bathroomType": "Private",
+    "windowView": "Street",
+    "pricing": {
+      "baseRatePerBed": 32.00,
+      "privateRoomRate": 88.00,
+      "seasonalAdjustment": 10
+    },
     "currentOccupants": 3,
     "maxOccupancy": 4,
     "lastUpdated": "2024-01-15T11:00:00Z"
@@ -105,6 +168,13 @@
     "bedCount": 6,
     "status": "Reserved",
     "amenities": ["WiFi", "AC", "Locker", "Bathroom", "Window View"],
+    "bathroomType": "Shared",
+    "windowView": "City",
+    "pricing": {
+      "baseRatePerBed": 27.00,
+      "privateRoomRate": 92.00,
+      "seasonalAdjustment": 18
+    },
     "currentOccupants": 0,
     "maxOccupancy": 6,
     "lastUpdated": "2024-01-15T08:45:00Z"
@@ -116,6 +186,13 @@
     "bedCount": 2,
     "status": "Available",
     "amenities": ["WiFi", "AC", "Private Bathroom", "TV", "Mini Fridge"],
+    "bathroomType": "En-suite",
+    "windowView": "Garden",
+    "pricing": {
+      "baseRatePerBed": 42.00,
+      "privateRoomRate": 115.00,
+      "seasonalAdjustment": 12
+    },
     "currentOccupants": 0,
     "maxOccupancy": 2,
     "lastUpdated": "2024-01-15T10:15:00Z"
@@ -127,6 +204,13 @@
     "bedCount": 8,
     "status": "Occupied",
     "amenities": ["WiFi", "AC", "Locker", "Bathroom", "City View"],
+    "bathroomType": "Shared",
+    "windowView": "City",
+    "pricing": {
+      "baseRatePerBed": 24.00,
+      "privateRoomRate": 78.00,
+      "seasonalAdjustment": 5
+    },
     "currentOccupants": 6,
     "maxOccupancy": 8,
     "lastUpdated": "2024-01-15T09:15:00Z"

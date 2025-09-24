@@ -103,6 +103,11 @@ const RoomForm = ({ room, onSave, onCancel, isEditing }) => {
     bedCount: room?.bedCount || 4,
     maxOccupancy: room?.maxOccupancy || 4,
     amenities: room?.amenities?.join(", ") || "WiFi, AC, Locker, Bathroom",
+    bathroomType: room?.bathroomType || "Shared",
+    windowView: room?.windowView || "Interior",
+    baseRatePerBed: room?.pricing?.baseRatePerBed || 25,
+    privateRoomRate: room?.pricing?.privateRoomRate || 80,
+    seasonalAdjustment: room?.pricing?.seasonalAdjustment || 0,
     status: room?.status || "Available"
   });
   const [loading, setLoading] = useState(false);
@@ -112,11 +117,16 @@ const RoomForm = ({ room, onSave, onCancel, isEditing }) => {
     setLoading(true);
 
     try {
-      const roomData = {
+const roomData = {
         ...formData,
         bedCount: parseInt(formData.bedCount),
         maxOccupancy: parseInt(formData.maxOccupancy),
         amenities: formData.amenities.split(",").map(a => a.trim()).filter(Boolean),
+        pricing: {
+          baseRatePerBed: parseFloat(formData.baseRatePerBed),
+          privateRoomRate: parseFloat(formData.privateRoomRate),
+          seasonalAdjustment: parseFloat(formData.seasonalAdjustment)
+        },
         currentOccupants: room?.currentOccupants || 0
       };
 
@@ -158,8 +168,40 @@ const RoomForm = ({ room, onSave, onCancel, isEditing }) => {
           >
             <option value="4-Bed Dorm">4-Bed Dorm</option>
             <option value="6-Bed Dorm">6-Bed Dorm</option>
-            <option value="8-Bed Dorm">8-Bed Dorm</option>
+<option value="8-Bed Dorm">8-Bed Dorm</option>
             <option value="Private Room">Private Room</option>
+          </Select>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Bathroom Type
+          </label>
+          <Select
+            value={formData.bathroomType}
+            onChange={(e) => setFormData(prev => ({ ...prev, bathroomType: e.target.value }))}
+            required
+          >
+            <option value="Shared">Shared</option>
+            <option value="Private">Private</option>
+            <option value="En-suite">En-suite</option>
+          </Select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Window View
+          </label>
+          <Select
+            value={formData.windowView}
+            onChange={(e) => setFormData(prev => ({ ...prev, windowView: e.target.value }))}
+            required
+          >
+            <option value="Interior">Interior</option>
+            <option value="City">City View</option>
+            <option value="Garden">Garden View</option>
+            <option value="Street">Street View</option>
           </Select>
         </div>
       </div>
@@ -207,8 +249,64 @@ const RoomForm = ({ room, onSave, onCancel, isEditing }) => {
           <option value="Maintenance">Maintenance</option>
           <option value="Reserved">Reserved</option>
         </Select>
+</div>
+
+      <div>
+        <h4 className="text-sm font-medium text-gray-700 mb-3">Pricing Configuration</h4>
+        <div className="grid grid-cols-3 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Base Rate per Bed ($)
+            </label>
+            <Input
+              type="number"
+              step="0.01"
+              min="0"
+              value={formData.baseRatePerBed}
+              onChange={(e) => setFormData(prev => ({ ...prev, baseRatePerBed: e.target.value }))}
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Private Room Rate ($)
+            </label>
+            <Input
+              type="number"
+              step="0.01"
+              min="0"
+              value={formData.privateRoomRate}
+              onChange={(e) => setFormData(prev => ({ ...prev, privateRoomRate: e.target.value }))}
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Seasonal Adjustment (%)
+            </label>
+            <Input
+              type="number"
+              step="1"
+              min="-50"
+              max="100"
+              value={formData.seasonalAdjustment}
+              onChange={(e) => setFormData(prev => ({ ...prev, seasonalAdjustment: e.target.value }))}
+            />
+          </div>
+        </div>
       </div>
 
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Amenities (comma separated)
+        </label>
+        <Textarea
+          rows={3}
+          value={formData.amenities}
+          onChange={(e) => setFormData(prev => ({ ...prev, amenities: e.target.value }))}
+          placeholder="WiFi, AC, Locker, Bathroom, TV"
+        />
+      </div>
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Amenities (comma separated)
@@ -264,11 +362,16 @@ const RoomDetails = ({ room, onEdit, onStatusChange }) => {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Room {room.number}</h2>
-          <p className="text-gray-600">{room.type}</p>
+<p className="text-gray-600">{room.type} • {room.bathroomType} Bathroom • {room.windowView}</p>
         </div>
-        <Badge variant={getStatusVariant(room.status)} size="lg">
-          {room.status}
-        </Badge>
+        <div className="text-right">
+          <Badge variant={getStatusVariant(room.status)} size="lg">
+            {room.status}
+          </Badge>
+          <div className="text-sm text-gray-600 mt-1">
+            ${room.pricing?.baseRatePerBed}/bed • ${room.pricing?.privateRoomRate}/private
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-6">
@@ -293,6 +396,17 @@ const RoomDetails = ({ room, onEdit, onStatusChange }) => {
                 <span className="text-sm text-gray-600">
                   Updated {new Date(room.lastUpdated).toLocaleDateString()}
                 </span>
+</div>
+              <div className="flex items-center">
+                <ApperIcon name="DollarSign" size={16} className="mr-3 text-gray-500" />
+                <span className="text-sm text-gray-600">
+                  ${room.pricing?.baseRatePerBed}/bed • ${room.pricing?.privateRoomRate}/private
+                  {room.pricing?.seasonalAdjustment !== 0 && (
+                    <span className="ml-2 text-xs text-blue-600">
+                      ({room.pricing?.seasonalAdjustment > 0 ? '+' : ''}{room.pricing?.seasonalAdjustment}% seasonal)
+                    </span>
+                  )}
+                </span>
               </div>
             </div>
           </CardContent>
@@ -307,6 +421,34 @@ const RoomDetails = ({ room, onEdit, onStatusChange }) => {
                   {amenity}
                 </Badge>
               ))}
+            </div>
+          </CardContent>
+</Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <h3 className="font-semibold text-gray-900 mb-3">Room Features</h3>
+            <div className="space-y-3">
+              <div className="flex items-center">
+                <ApperIcon name="Bath" size={16} className="mr-3 text-gray-500" />
+                <span className="text-sm text-gray-600">{room.bathroomType} Bathroom</span>
+              </div>
+              <div className="flex items-center">
+                <ApperIcon name="Eye" size={16} className="mr-3 text-gray-500" />
+                <span className="text-sm text-gray-600">{room.windowView} View</span>
+              </div>
+              <div className="flex items-center">
+                <ApperIcon name="DollarSign" size={16} className="mr-3 text-gray-500" />
+                <div className="text-sm text-gray-600">
+                  <div>Bed rate: ${room.pricing?.baseRatePerBed}/night</div>
+                  <div>Private rate: ${room.pricing?.privateRoomRate}/night</div>
+                  {room.pricing?.seasonalAdjustment !== 0 && (
+                    <div className="text-xs text-blue-600 mt-1">
+                      Seasonal: {room.pricing?.seasonalAdjustment > 0 ? '+' : ''}{room.pricing?.seasonalAdjustment}%
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
