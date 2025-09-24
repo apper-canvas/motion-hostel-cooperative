@@ -502,18 +502,39 @@ const Guests = () => {
     }
   }, []);
 
-  const loadRooms = useCallback(async () => {
+const loadRooms = useCallback(async () => {
     try {
       const roomData = await roomService.getAll();
+      console.log("Loaded room data:", roomData);
+      
+      if (!roomData || !Array.isArray(roomData)) {
+        console.error("Invalid room data received:", roomData);
+        toast.error("Failed to load rooms: Invalid data format");
+        setRooms([]);
+        return;
+      }
+      
       // Filter for available rooms (not fully occupied)
       const availableRooms = roomData.filter(room => {
+        if (!room) return false;
+        
         const current = parseInt(room.current_occupants_c) || 0;
         const max = parseInt(room.max_occupancy_c) || 4;
-        return current < max && room.status_c === 'available';
+        const status = room.status_c || 'unknown';
+        
+        return current < max && status === 'available';
       });
+      
+      console.log("Available rooms after filtering:", availableRooms);
       setRooms(availableRooms);
+      
+      if (availableRooms.length === 0) {
+        toast.warning("No available rooms found for check-in");
+      }
     } catch (err) {
       console.error("Failed to load rooms:", err);
+      toast.error("Failed to load available rooms. Please try again.");
+      setRooms([]);
     }
   }, []);
 
