@@ -20,7 +20,7 @@ class GuestService {
       if (!this.apperClient) this.initializeClient();
       
       const params = {
-        fields: [
+fields: [
           {"field": {"Name": "Name"}},
           {"field": {"Name": "name_c"}},
           {"field": {"Name": "email_c"}},
@@ -29,7 +29,9 @@ class GuestService {
           {"field": {"Name": "room_id_c"}},
           {"field": {"Name": "status_c"}},
           {"field": {"Name": "nationality_c"}},
-          {"field": {"Name": "phone_c"}}
+          {"field": {"Name": "phone_c"}},
+          {"field": {"Name": "id_document_c"}},
+          {"field": {"Name": "Tags"}}
         ]
       };
       
@@ -52,7 +54,7 @@ class GuestService {
       
       const params = {
         fields: [
-          {"field": {"Name": "Name"}},
+{"field": {"Name": "Name"}},
           {"field": {"Name": "name_c"}},
           {"field": {"Name": "email_c"}},
           {"field": {"Name": "check_in_c"}},
@@ -60,7 +62,9 @@ class GuestService {
           {"field": {"Name": "room_id_c"}},
           {"field": {"Name": "status_c"}},
           {"field": {"Name": "nationality_c"}},
-          {"field": {"Name": "phone_c"}}
+          {"field": {"Name": "phone_c"}},
+          {"field": {"Name": "id_document_c"}},
+          {"field": {"Name": "Tags"}}
         ]
       };
       
@@ -84,7 +88,7 @@ class GuestService {
       // Only include updateable fields
       const params = {
         records: [{
-          Name: guestData.name_c || guestData.Name || "",
+Name: guestData.name_c || guestData.Name || "",
           name_c: guestData.name_c || guestData.name || "",
           email_c: guestData.email_c || guestData.email || "",
           check_in_c: guestData.check_in_c || guestData.checkIn || "",
@@ -92,7 +96,9 @@ class GuestService {
           room_id_c: parseInt(guestData.room_id_c || guestData.roomId) || null,
           status_c: guestData.status_c || guestData.status || "reserved",
           nationality_c: guestData.nationality_c || guestData.nationality || "",
-          phone_c: guestData.phone_c || guestData.phone || ""
+          phone_c: guestData.phone_c || guestData.phone || "",
+          id_document_c: guestData.id_document_c || guestData.idDocument || "",
+          Tags: guestData.Tags || guestData.tags || ""
         }]
       };
       
@@ -127,7 +133,7 @@ class GuestService {
       
       const params = {
         records: [{
-          Id: parseInt(id),
+Id: parseInt(id),
           Name: guestData.name_c || guestData.Name || "",
           name_c: guestData.name_c || guestData.name || "",
           email_c: guestData.email_c || guestData.email || "",
@@ -136,7 +142,9 @@ class GuestService {
           room_id_c: parseInt(guestData.room_id_c || guestData.roomId) || null,
           status_c: guestData.status_c || guestData.status || "",
           nationality_c: guestData.nationality_c || guestData.nationality || "",
-          phone_c: guestData.phone_c || guestData.phone || ""
+          phone_c: guestData.phone_c || guestData.phone || "",
+          id_document_c: guestData.id_document_c || guestData.idDocument || "",
+          Tags: guestData.Tags || guestData.tags || ""
         }]
       };
       
@@ -204,7 +212,7 @@ class GuestService {
       
       const params = {
         fields: [
-          {"field": {"Name": "Name"}},
+{"field": {"Name": "Name"}},
           {"field": {"Name": "name_c"}},
           {"field": {"Name": "email_c"}},
           {"field": {"Name": "check_in_c"}},
@@ -212,7 +220,9 @@ class GuestService {
           {"field": {"Name": "room_id_c"}},
           {"field": {"Name": "status_c"}},
           {"field": {"Name": "nationality_c"}},
-          {"field": {"Name": "phone_c"}}
+          {"field": {"Name": "phone_c"}},
+          {"field": {"Name": "id_document_c"}},
+          {"field": {"Name": "Tags"}}
         ],
         where: [{"FieldName": "status_c", "Operator": "EqualTo", "Values": [status]}]
       };
