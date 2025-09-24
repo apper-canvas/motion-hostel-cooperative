@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader } from "@/components/atoms/Card";
-import { Button } from "@/components/atoms/Button";
+import Button from "@/components/atoms/Button";
 import { Badge } from "@/components/atoms/Badge";
 import ApperIcon from "@/components/ApperIcon";
 import { toast } from "react-toastify";
