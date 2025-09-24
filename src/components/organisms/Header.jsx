@@ -1,7 +1,7 @@
 import React from "react";
 import ApperIcon from "@/components/ApperIcon";
+import LogoutButton from "@/components/atoms/LogoutButton";
 import { format } from "date-fns";
-
 const Header = ({ onMobileMenuToggle, isMobileMenuOpen }) => {
   const currentTime = new Date();
 
@@ -37,6 +37,8 @@ const Header = ({ onMobileMenuToggle, isMobileMenuOpen }) => {
             <ApperIcon name="Clock" size={16} />
             <span>{format(currentTime, "h:mm a")}</span>
           </div>
+          
+          <LogoutButton />
           
           <div className="w-8 h-8 bg-gradient-to-r from-primary to-blue-600 rounded-full flex items-center justify-center">
             <ApperIcon name="User" size={16} className="text-white" />

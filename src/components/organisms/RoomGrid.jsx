@@ -52,8 +52,9 @@ const RoomGrid = () => {
     );
   }
 
-  const roomsByStatus = rooms.reduce((acc, room) => {
-    acc[room.status] = (acc[room.status] || 0) + 1;
+const roomsByStatus = rooms.reduce((acc, room) => {
+    const status = room.status_c || room.status;
+    acc[status] = (acc[status] || 0) + 1;
     return acc;
   }, {});
 

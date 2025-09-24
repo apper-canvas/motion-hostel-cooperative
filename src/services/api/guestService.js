@@ -1,82 +1,267 @@
-import guestsData from "@/services/mockData/guests.json";
-
 class GuestService {
   constructor() {
-    this.guests = [...guestsData];
+    this.tableName = 'guest_c';
+    this.apperClient = null;
+    this.initializeClient();
+  }
+
+  initializeClient() {
+    if (typeof window !== 'undefined' && window.ApperSDK) {
+      const { ApperClient } = window.ApperSDK;
+      this.apperClient = new ApperClient({
+        apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+        apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+      });
+    }
   }
 
   async getAll() {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    return [...this.guests];
+    try {
+      if (!this.apperClient) this.initializeClient();
+      
+      const params = {
+        fields: [
+          {"field": {"Name": "Name"}},
+          {"field": {"Name": "name_c"}},
+          {"field": {"Name": "email_c"}},
+          {"field": {"Name": "check_in_c"}},
+          {"field": {"Name": "check_out_c"}},
+          {"field": {"Name": "room_id_c"}},
+          {"field": {"Name": "status_c"}},
+          {"field": {"Name": "nationality_c"}},
+          {"field": {"Name": "phone_c"}}
+        ]
+      };
+      
+      const response = await this.apperClient.fetchRecords(this.tableName, params);
+      
+      if (!response?.data?.length) {
+        return [];
+      } else {
+        return response.data;
+      }
+    } catch (error) {
+      console.error("Error fetching guests:", error?.response?.data?.message || error);
+      return [];
+    }
   }
 
   async getById(id) {
-    await new Promise(resolve => setTimeout(resolve, 200));
-    const guest = this.guests.find(guest => guest.Id === parseInt(id));
-    if (!guest) {
+    try {
+      if (!this.apperClient) this.initializeClient();
+      
+      const params = {
+        fields: [
+          {"field": {"Name": "Name"}},
+          {"field": {"Name": "name_c"}},
+          {"field": {"Name": "email_c"}},
+          {"field": {"Name": "check_in_c"}},
+          {"field": {"Name": "check_out_c"}},
+          {"field": {"Name": "room_id_c"}},
+          {"field": {"Name": "status_c"}},
+          {"field": {"Name": "nationality_c"}},
+          {"field": {"Name": "phone_c"}}
+        ]
+      };
+      
+      const response = await this.apperClient.getRecordById(this.tableName, id, params);
+      
+      if (!response?.data) {
+        throw new Error("Guest not found");
+      } else {
+        return response.data;
+      }
+    } catch (error) {
+      console.error(`Error fetching guest ${id}:`, error?.response?.data?.message || error);
       throw new Error("Guest not found");
     }
-    return { ...guest };
   }
 
   async create(guestData) {
-    await new Promise(resolve => setTimeout(resolve, 400));
-    const newId = Math.max(...this.guests.map(g => g.Id)) + 1;
-    const newGuest = {
-      Id: newId,
-      ...guestData,
-      status: "reserved"
-    };
-    this.guests.push(newGuest);
-    return { ...newGuest };
+    try {
+      if (!this.apperClient) this.initializeClient();
+      
+      // Only include updateable fields
+      const params = {
+        records: [{
+          Name: guestData.name_c || guestData.Name || "",
+          name_c: guestData.name_c || guestData.name || "",
+          email_c: guestData.email_c || guestData.email || "",
+          check_in_c: guestData.check_in_c || guestData.checkIn || "",
+          check_out_c: guestData.check_out_c || guestData.checkOut || "",
+          room_id_c: parseInt(guestData.room_id_c || guestData.roomId) || null,
+          status_c: guestData.status_c || guestData.status || "reserved",
+          nationality_c: guestData.nationality_c || guestData.nationality || "",
+          phone_c: guestData.phone_c || guestData.phone || ""
+        }]
+      };
+      
+      const response = await this.apperClient.createRecord(this.tableName, params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        throw new Error(response.message);
+      }
+      
+      if (response.results) {
+        const successful = response.results.filter(r => r.success);
+        const failed = response.results.filter(r => !r.success);
+        
+        if (failed.length > 0) {
+          console.error(`Failed to create ${failed.length} guest records:`, failed);
+          failed.forEach(record => {
+            if (record.message) throw new Error(record.message);
+          });
+        }
+        return successful[0]?.data;
+      }
+    } catch (error) {
+      console.error("Error creating guest:", error?.response?.data?.message || error);
+      throw error;
+    }
   }
 
   async update(id, guestData) {
-    await new Promise(resolve => setTimeout(resolve, 350));
-    const index = this.guests.findIndex(guest => guest.Id === parseInt(id));
-    if (index === -1) {
-      throw new Error("Guest not found");
+    try {
+      if (!this.apperClient) this.initializeClient();
+      
+      const params = {
+        records: [{
+          Id: parseInt(id),
+          Name: guestData.name_c || guestData.Name || "",
+          name_c: guestData.name_c || guestData.name || "",
+          email_c: guestData.email_c || guestData.email || "",
+          check_in_c: guestData.check_in_c || guestData.checkIn || "",
+          check_out_c: guestData.check_out_c || guestData.checkOut || "",
+          room_id_c: parseInt(guestData.room_id_c || guestData.roomId) || null,
+          status_c: guestData.status_c || guestData.status || "",
+          nationality_c: guestData.nationality_c || guestData.nationality || "",
+          phone_c: guestData.phone_c || guestData.phone || ""
+        }]
+      };
+      
+      const response = await this.apperClient.updateRecord(this.tableName, params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        throw new Error(response.message);
+      }
+      
+      if (response.results) {
+        const successful = response.results.filter(r => r.success);
+        const failed = response.results.filter(r => !r.success);
+        
+        if (failed.length > 0) {
+          console.error(`Failed to update ${failed.length} guest records:`, failed);
+          failed.forEach(record => {
+            if (record.message) throw new Error(record.message);
+          });
+        }
+        return successful[0]?.data;
+      }
+    } catch (error) {
+      console.error("Error updating guest:", error?.response?.data?.message || error);
+      throw error;
     }
-    this.guests[index] = {
-      ...this.guests[index],
-      ...guestData,
-      Id: parseInt(id)
-    };
-    return { ...this.guests[index] };
   }
 
   async delete(id) {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    const index = this.guests.findIndex(guest => guest.Id === parseInt(id));
-    if (index === -1) {
-      throw new Error("Guest not found");
+    try {
+      if (!this.apperClient) this.initializeClient();
+      
+      const params = { 
+        RecordIds: [parseInt(id)]
+      };
+      
+      const response = await this.apperClient.deleteRecord(this.tableName, params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        throw new Error(response.message);
+      }
+      
+      if (response.results) {
+        const successful = response.results.filter(r => r.success);
+        const failed = response.results.filter(r => !r.success);
+        
+        if (failed.length > 0) {
+          console.error(`Failed to delete ${failed.length} guest records:`, failed);
+          failed.forEach(record => {
+            if (record.message) throw new Error(record.message);
+          });
+        }
+        return successful.length === 1;
+      }
+    } catch (error) {
+      console.error("Error deleting guest:", error?.response?.data?.message || error);
+      throw error;
     }
-    const deleted = this.guests.splice(index, 1)[0];
-    return { ...deleted };
   }
 
   async getByStatus(status) {
-    await new Promise(resolve => setTimeout(resolve, 250));
-    return this.guests.filter(guest => guest.status === status).map(guest => ({ ...guest }));
+    try {
+      if (!this.apperClient) this.initializeClient();
+      
+      const params = {
+        fields: [
+          {"field": {"Name": "Name"}},
+          {"field": {"Name": "name_c"}},
+          {"field": {"Name": "email_c"}},
+          {"field": {"Name": "check_in_c"}},
+          {"field": {"Name": "check_out_c"}},
+          {"field": {"Name": "room_id_c"}},
+          {"field": {"Name": "status_c"}},
+          {"field": {"Name": "nationality_c"}},
+          {"field": {"Name": "phone_c"}}
+        ],
+        where: [{"FieldName": "status_c", "Operator": "EqualTo", "Values": [status]}]
+      };
+      
+      const response = await this.apperClient.fetchRecords(this.tableName, params);
+      
+      if (!response?.data?.length) {
+        return [];
+      } else {
+        return response.data;
+      }
+    } catch (error) {
+      console.error("Error fetching guests by status:", error?.response?.data?.message || error);
+      return [];
+    }
   }
 
   async checkIn(id) {
-    await new Promise(resolve => setTimeout(resolve, 300));
     return this.updateStatus(id, "checked-in");
   }
 
   async checkOut(id) {
-    await new Promise(resolve => setTimeout(resolve, 300));
     return this.updateStatus(id, "checked-out");
   }
 
   async updateStatus(id, status) {
-    const index = this.guests.findIndex(guest => guest.Id === parseInt(id));
-    if (index === -1) {
-      throw new Error("Guest not found");
+    try {
+      const params = {
+        records: [{
+          Id: parseInt(id),
+          status_c: status
+        }]
+      };
+      
+      const response = await this.apperClient.updateRecord(this.tableName, params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        throw new Error(response.message);
+      }
+      
+      if (response.results) {
+        const successful = response.results.filter(r => r.success);
+        return successful[0]?.data;
+      }
+    } catch (error) {
+      console.error("Error updating guest status:", error?.response?.data?.message || error);
+      throw error;
     }
-    this.guests[index].status = status;
-    return { ...this.guests[index] };
   }
 }
 

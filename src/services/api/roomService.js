@@ -1,76 +1,285 @@
-import roomsData from "@/services/mockData/rooms.json";
-
 class RoomService {
   constructor() {
-    this.rooms = [...roomsData];
+    this.tableName = 'room_c';
+    this.apperClient = null;
+    this.initializeClient();
+  }
+
+  initializeClient() {
+    if (typeof window !== 'undefined' && window.ApperSDK) {
+      const { ApperClient } = window.ApperSDK;
+      this.apperClient = new ApperClient({
+        apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+        apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+      });
+    }
   }
 
   async getAll() {
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 300));
-    return [...this.rooms];
+    try {
+      if (!this.apperClient) this.initializeClient();
+      
+      const params = {
+        fields: [
+          {"field": {"Name": "Name"}},
+          {"field": {"Name": "number_c"}},
+          {"field": {"Name": "type_c"}},
+          {"field": {"Name": "bed_count_c"}},
+          {"field": {"Name": "status_c"}},
+          {"field": {"Name": "amenities_c"}},
+          {"field": {"Name": "bathroom_type_c"}},
+          {"field": {"Name": "window_view_c"}},
+          {"field": {"Name": "base_rate_per_bed_c"}},
+          {"field": {"Name": "private_room_rate_c"}},
+          {"field": {"Name": "seasonal_adjustment_c"}},
+          {"field": {"Name": "current_occupants_c"}},
+          {"field": {"Name": "max_occupancy_c"}},
+          {"field": {"Name": "last_updated_c"}}
+        ]
+      };
+      
+      const response = await this.apperClient.fetchRecords(this.tableName, params);
+      
+      if (!response?.data?.length) {
+        return [];
+      } else {
+        return response.data;
+      }
+    } catch (error) {
+      console.error("Error fetching rooms:", error?.response?.data?.message || error);
+      return [];
+    }
   }
 
   async getById(id) {
-    await new Promise(resolve => setTimeout(resolve, 200));
-    const room = this.rooms.find(room => room.Id === parseInt(id));
-    if (!room) {
+    try {
+      if (!this.apperClient) this.initializeClient();
+      
+      const params = {
+        fields: [
+          {"field": {"Name": "Name"}},
+          {"field": {"Name": "number_c"}},
+          {"field": {"Name": "type_c"}},
+          {"field": {"Name": "bed_count_c"}},
+          {"field": {"Name": "status_c"}},
+          {"field": {"Name": "amenities_c"}},
+          {"field": {"Name": "bathroom_type_c"}},
+          {"field": {"Name": "window_view_c"}},
+          {"field": {"Name": "base_rate_per_bed_c"}},
+          {"field": {"Name": "private_room_rate_c"}},
+          {"field": {"Name": "seasonal_adjustment_c"}},
+          {"field": {"Name": "current_occupants_c"}},
+          {"field": {"Name": "max_occupancy_c"}},
+          {"field": {"Name": "last_updated_c"}}
+        ]
+      };
+      
+      const response = await this.apperClient.getRecordById(this.tableName, id, params);
+      
+      if (!response?.data) {
+        throw new Error("Room not found");
+      } else {
+        return response.data;
+      }
+    } catch (error) {
+      console.error(`Error fetching room ${id}:`, error?.response?.data?.message || error);
       throw new Error("Room not found");
     }
-    return { ...room };
   }
 
   async create(roomData) {
-    await new Promise(resolve => setTimeout(resolve, 400));
-    const newId = Math.max(...this.rooms.map(r => r.Id)) + 1;
-    const newRoom = {
-      Id: newId,
-      ...roomData,
-      lastUpdated: new Date().toISOString()
-    };
-    this.rooms.push(newRoom);
-    return { ...newRoom };
+    try {
+      if (!this.apperClient) this.initializeClient();
+      
+      // Only include updateable fields
+      const params = {
+        records: [{
+          Name: roomData.number_c || roomData.number || "",
+          number_c: roomData.number_c || roomData.number || "",
+          type_c: roomData.type_c || roomData.type || "4-Bed Dorm",
+          bed_count_c: parseInt(roomData.bed_count_c || roomData.bedCount) || 4,
+          status_c: roomData.status_c || roomData.status || "Available",
+          amenities_c: roomData.amenities_c || (Array.isArray(roomData.amenities) ? roomData.amenities.join(", ") : roomData.amenities) || "",
+          bathroom_type_c: roomData.bathroom_type_c || roomData.bathroomType || "Shared",
+          window_view_c: roomData.window_view_c || roomData.windowView || "Interior",
+          base_rate_per_bed_c: parseFloat(roomData.base_rate_per_bed_c || roomData.baseRatePerBed) || 25.00,
+          private_room_rate_c: parseFloat(roomData.private_room_rate_c || roomData.privateRoomRate) || 80.00,
+          seasonal_adjustment_c: parseInt(roomData.seasonal_adjustment_c || roomData.seasonalAdjustment) || 0,
+          current_occupants_c: parseInt(roomData.current_occupants_c || roomData.currentOccupants) || 0,
+          max_occupancy_c: parseInt(roomData.max_occupancy_c || roomData.maxOccupancy) || 4,
+          last_updated_c: new Date().toISOString()
+        }]
+      };
+      
+      const response = await this.apperClient.createRecord(this.tableName, params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        throw new Error(response.message);
+      }
+      
+      if (response.results) {
+        const successful = response.results.filter(r => r.success);
+        const failed = response.results.filter(r => !r.success);
+        
+        if (failed.length > 0) {
+          console.error(`Failed to create ${failed.length} room records:`, failed);
+          failed.forEach(record => {
+            if (record.message) throw new Error(record.message);
+          });
+        }
+        return successful[0]?.data;
+      }
+    } catch (error) {
+      console.error("Error creating room:", error?.response?.data?.message || error);
+      throw error;
+    }
   }
 
   async update(id, roomData) {
-    await new Promise(resolve => setTimeout(resolve, 350));
-    const index = this.rooms.findIndex(room => room.Id === parseInt(id));
-    if (index === -1) {
-      throw new Error("Room not found");
+    try {
+      if (!this.apperClient) this.initializeClient();
+      
+      const params = {
+        records: [{
+          Id: parseInt(id),
+          Name: roomData.number_c || roomData.number || "",
+          number_c: roomData.number_c || roomData.number || "",
+          type_c: roomData.type_c || roomData.type || "",
+          bed_count_c: parseInt(roomData.bed_count_c || roomData.bedCount) || 0,
+          status_c: roomData.status_c || roomData.status || "",
+          amenities_c: roomData.amenities_c || (Array.isArray(roomData.amenities) ? roomData.amenities.join(", ") : roomData.amenities) || "",
+          bathroom_type_c: roomData.bathroom_type_c || roomData.bathroomType || "",
+          window_view_c: roomData.window_view_c || roomData.windowView || "",
+          base_rate_per_bed_c: parseFloat(roomData.base_rate_per_bed_c || roomData.baseRatePerBed) || 0,
+          private_room_rate_c: parseFloat(roomData.private_room_rate_c || roomData.privateRoomRate) || 0,
+          seasonal_adjustment_c: parseInt(roomData.seasonal_adjustment_c || roomData.seasonalAdjustment) || 0,
+          current_occupants_c: parseInt(roomData.current_occupants_c || roomData.currentOccupants) || 0,
+          max_occupancy_c: parseInt(roomData.max_occupancy_c || roomData.maxOccupancy) || 0,
+          last_updated_c: new Date().toISOString()
+        }]
+      };
+      
+      const response = await this.apperClient.updateRecord(this.tableName, params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        throw new Error(response.message);
+      }
+      
+      if (response.results) {
+        const successful = response.results.filter(r => r.success);
+        const failed = response.results.filter(r => !r.success);
+        
+        if (failed.length > 0) {
+          console.error(`Failed to update ${failed.length} room records:`, failed);
+          failed.forEach(record => {
+            if (record.message) throw new Error(record.message);
+          });
+        }
+        return successful[0]?.data;
+      }
+    } catch (error) {
+      console.error("Error updating room:", error?.response?.data?.message || error);
+      throw error;
     }
-    this.rooms[index] = {
-      ...this.rooms[index],
-      ...roomData,
-      Id: parseInt(id),
-      lastUpdated: new Date().toISOString()
-    };
-    return { ...this.rooms[index] };
   }
 
   async delete(id) {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    const index = this.rooms.findIndex(room => room.Id === parseInt(id));
-    if (index === -1) {
-      throw new Error("Room not found");
+    try {
+      if (!this.apperClient) this.initializeClient();
+      
+      const params = { 
+        RecordIds: [parseInt(id)]
+      };
+      
+      const response = await this.apperClient.deleteRecord(this.tableName, params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        throw new Error(response.message);
+      }
+      
+      if (response.results) {
+        const successful = response.results.filter(r => r.success);
+        const failed = response.results.filter(r => !r.success);
+        
+        if (failed.length > 0) {
+          console.error(`Failed to delete ${failed.length} room records:`, failed);
+          failed.forEach(record => {
+            if (record.message) throw new Error(record.message);
+          });
+        }
+        return successful.length === 1;
+      }
+    } catch (error) {
+      console.error("Error deleting room:", error?.response?.data?.message || error);
+      throw error;
     }
-    const deleted = this.rooms.splice(index, 1)[0];
-    return { ...deleted };
   }
 
   async getByStatus(status) {
-    await new Promise(resolve => setTimeout(resolve, 250));
-    return this.rooms.filter(room => room.status === status).map(room => ({ ...room }));
+    try {
+      if (!this.apperClient) this.initializeClient();
+      
+      const params = {
+        fields: [
+          {"field": {"Name": "Name"}},
+          {"field": {"Name": "number_c"}},
+          {"field": {"Name": "type_c"}},
+          {"field": {"Name": "bed_count_c"}},
+          {"field": {"Name": "status_c"}},
+          {"field": {"Name": "amenities_c"}},
+          {"field": {"Name": "bathroom_type_c"}},
+          {"field": {"Name": "window_view_c"}},
+          {"field": {"Name": "base_rate_per_bed_c"}},
+          {"field": {"Name": "private_room_rate_c"}},
+          {"field": {"Name": "seasonal_adjustment_c"}},
+          {"field": {"Name": "current_occupants_c"}},
+          {"field": {"Name": "max_occupancy_c"}},
+          {"field": {"Name": "last_updated_c"}}
+        ],
+        where: [{"FieldName": "status_c", "Operator": "EqualTo", "Values": [status]}]
+      };
+      
+      const response = await this.apperClient.fetchRecords(this.tableName, params);
+      
+      if (!response?.data?.length) {
+        return [];
+      } else {
+        return response.data;
+      }
+    } catch (error) {
+      console.error("Error fetching rooms by status:", error?.response?.data?.message || error);
+      return [];
+    }
   }
 
   async updateStatus(id, status) {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    const index = this.rooms.findIndex(room => room.Id === parseInt(id));
-    if (index === -1) {
-      throw new Error("Room not found");
+    try {
+      const params = {
+        records: [{
+          Id: parseInt(id),
+          status_c: status,
+          last_updated_c: new Date().toISOString()
+        }]
+      };
+      
+      const response = await this.apperClient.updateRecord(this.tableName, params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        throw new Error(response.message);
+      }
+      
+      if (response.results) {
+        const successful = response.results.filter(r => r.success);
+        return successful[0]?.data;
+      }
+    } catch (error) {
+      console.error("Error updating room status:", error?.response?.data?.message || error);
+      throw error;
     }
-    this.rooms[index].status = status;
-    this.rooms[index].lastUpdated = new Date().toISOString();
-    return { ...this.rooms[index] };
   }
 }
 
