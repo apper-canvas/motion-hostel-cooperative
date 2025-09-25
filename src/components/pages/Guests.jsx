@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Card, CardContent, CardHeader } from "@/components/atoms/Card";
-import Button from "@/components/atoms/Button";
-import Badge from "@/components/atoms/Badge";
-import ApperIcon from "@/components/ApperIcon";
-import { cn } from "@/utils/cn";
+import { toast } from "react-toastify";
 import guestService from "@/services/api/guestService";
 import roomService from "@/services/api/roomService";
+import { cn } from "@/utils/cn";
+import ApperIcon from "@/components/ApperIcon";
 import Loading from "@/components/ui/Loading";
 import Error from "@/components/ui/Error";
-import { toast } from "react-toastify";
+import Button from "@/components/atoms/Button";
+import Badge from "@/components/atoms/Badge";
 
 // Input Components
 const Input = ({ className, ...props }) => (
@@ -141,9 +141,15 @@ const CheckInForm = ({ onSave, onCancel, availableRooms }) => {
   const [formData, setFormData] = useState({
     name_c: '',
     email_c: '',
-    phone_c: '',
+phone_c: '',
     nationality_c: '',
     id_document_c: '',
+    address_line1_c: '',
+    address_line2_c: '',
+    city_c: '',
+    state_c: '',
+    zip_code_c: '',
+    country_c: '',
     room_id_c: '',
     check_in_c: '',
     check_out_c: '',
@@ -288,7 +294,76 @@ const CheckInForm = ({ onSave, onCancel, availableRooms }) => {
             type="date"
             value={formData.check_out_c}
             onChange={(e) => handleChange('check_out_c', e.target.value)}
-          />
+/>
+        </div>
+
+        {/* Address Information */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Address Information</h3>
+          <div className="grid grid-cols-1 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Address Line 1 <span className="text-red-500">*</span>
+              </label>
+              <Input
+                value={formData.address_line1_c}
+                onChange={(e) => handleChange('address_line1_c', e.target.value)}
+                placeholder="Street address, P.O. box, company name"
+                className="w-full"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Address Line 2 <span className="text-gray-400">(Optional)</span>
+              </label>
+              <Input
+                value={formData.address_line2_c}
+                onChange={(e) => handleChange('address_line2_c', e.target.value)}
+                placeholder="Apartment, suite, unit, building, floor, etc."
+                className="w-full"
+              />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
+                <Input
+                  value={formData.city_c}
+                  onChange={(e) => handleChange('city_c', e.target.value)}
+                  placeholder="City"
+                  className="w-full"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">State/Province</label>
+                <Input
+                  value={formData.state_c}
+                  onChange={(e) => handleChange('state_c', e.target.value)}
+                  placeholder="State or Province"
+                  className="w-full"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Zip/Postal Code</label>
+                <Input
+                  value={formData.zip_code_c}
+                  onChange={(e) => handleChange('zip_code_c', e.target.value)}
+                  placeholder="Zip or Postal Code"
+                  className="w-full"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
+                <Input
+                  value={formData.country_c}
+                  onChange={(e) => handleChange('country_c', e.target.value)}
+                  placeholder="Country"
+                  className="w-full"
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       
@@ -350,7 +425,7 @@ const GuestProfile = ({ guest, onEdit, onStatusChange }) => {
         </Badge>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-4">
           <h3 className="font-medium text-gray-900">Contact Information</h3>
           <div className="space-y-2">
@@ -367,6 +442,28 @@ const GuestProfile = ({ guest, onEdit, onStatusChange }) => {
               <p className="font-medium">{guest.id_document_c || 'Not provided'}</p>
             </div>
           </div>
+        </div>
+        <div className="space-y-4">
+          <h3 className="font-medium text-gray-900">Address Information</h3>
+          <div className="space-y-2">
+            <div>
+              <span className="text-sm text-gray-500">Address</span>
+              <div className="font-medium">
+                {guest.address_line1_c ? (
+                  <>
+                    <p>{guest.address_line1_c}</p>
+                    {guest.address_line2_c && <p>{guest.address_line2_c}</p>}
+                    <p>
+                      {[guest.city_c, guest.state_c, guest.zip_code_c].filter(Boolean).join(', ')}
+                    </p>
+                    {guest.country_c && <p>{guest.country_c}</p>}
+                  </>
+                ) : (
+                  <p>Not provided</p>
+                )}
+              </div>
+            </div>
+</div>
         </div>
 
         <div className="space-y-4">
