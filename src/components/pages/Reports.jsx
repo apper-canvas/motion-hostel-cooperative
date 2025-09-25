@@ -139,8 +139,8 @@ const Reports = () => {
     colors: ['#3b82f6'],
     stroke: { curve: 'smooth', width: 2 },
     fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.7, opacityTo: 0.3 } },
-    xaxis: { 
-      categories: reportData.occupancy?.trend?.map(d => format(new Date(d.date), 'MMM dd')) || [],
+xaxis: { 
+      categories: reportData?.occupancy?.trend?.length ? reportData.occupancy.trend.map(d => format(new Date(d.date), 'MMM dd')) : [],
       title: { text: 'Date' }
     },
     yaxis: { 
@@ -158,7 +158,7 @@ const Reports = () => {
     chart: { type: 'column', height: 300 },
     colors: ['#10b981'],
     xaxis: { 
-      categories: reportData.revenue?.trend?.map(d => format(new Date(d.date), 'MMM dd')) || [],
+categories: reportData?.revenue?.trend?.length ? reportData.revenue.trend.map(d => format(new Date(d.date), 'MMM dd')) : [],
       title: { text: 'Date' }
     },
     yaxis: { 
@@ -173,7 +173,7 @@ const Reports = () => {
 
   const bookingStatusOptions = {
     chart: { type: 'donut', height: 300 },
-    labels: Object.keys(reportData.bookings?.statusDistribution || {}),
+labels: reportData?.bookings?.statusDistribution ? Object.keys(reportData.bookings.statusDistribution) : [],
     colors: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444'],
     title: { text: 'Booking Status Distribution', align: 'center' },
     legend: { position: 'bottom' },
@@ -186,7 +186,7 @@ const Reports = () => {
   const maintenancePriorityOptions = {
     chart: { type: 'bar', height: 300 },
     colors: ['#ef4444', '#f59e0b', '#10b981'],
-    xaxis: { categories: Object.keys(reportData.maintenance?.priorityDistribution || {}) },
+xaxis: { categories: reportData?.maintenance?.priorityDistribution ? Object.keys(reportData.maintenance.priorityDistribution) : [] },
     yaxis: { title: { text: 'Number of Issues' } },
     title: { text: 'Maintenance Issues by Priority', align: 'center' },
     plotOptions: { bar: { horizontal: false, columnWidth: '50%' } }
@@ -370,7 +370,7 @@ const Reports = () => {
                 options={occupancyChartOptions}
                 series={[{
                   name: 'Occupancy Rate',
-                  data: reportData.occupancy?.trend?.map(d => d.occupancyRate) || []
+data: reportData?.occupancy?.trend?.length ? reportData.occupancy.trend.map(d => d.occupancyRate) : []
                 }]}
                 type="area"
                 height={300}
@@ -389,7 +389,7 @@ const Reports = () => {
                 options={revenueChartOptions}
                 series={[{
                   name: 'Daily Revenue',
-                  data: reportData.revenue?.trend?.map(d => d.revenue) || []
+data: reportData?.revenue?.trend?.length ? reportData.revenue.trend.map(d => d.revenue) : []
                 }]}
                 type="column"
                 height={300}
@@ -406,7 +406,7 @@ const Reports = () => {
             ) : (
               <Chart
                 options={bookingStatusOptions}
-                series={Object.values(reportData.bookings?.statusDistribution || {})}
+series={reportData?.bookings?.statusDistribution ? Object.values(reportData.bookings.statusDistribution) : []}
                 type="donut"
                 height={300}
               />
@@ -424,7 +424,7 @@ const Reports = () => {
                 options={maintenancePriorityOptions}
                 series={[{
                   name: 'Issues',
-                  data: Object.values(reportData.maintenance?.priorityDistribution || {})
+data: reportData?.maintenance?.priorityDistribution ? Object.values(reportData.maintenance.priorityDistribution) : []
                 }]}
                 type="bar"
                 height={300}
